@@ -1,0 +1,26 @@
+import { SectionProps } from "@/types/builder";
+
+export function FeaturesSection({
+  title = "Our Features",
+  description = "Fast, simple, and modern.",
+}: SectionProps) {
+  return (
+    <section className="bg-white px-8 py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <h2 className="text-3xl font-semibold">{title}</h2>
+        <p className="mt-3 text-zinc-600">{description}</p>
+      </div>
+
+      <div className="mx-auto mt-10 grid max-w-4xl gap-4 md:grid-cols-3">
+        {["Bookings", "Payments", "Customers"].map((item) => (
+          <div key={item} className="rounded-3xl border border-zinc-200 p-6">
+            <h3 className="font-semibold">{item}</h3>
+            <p className="mt-2 text-sm text-zinc-500">
+              Manage everything from one simple page.
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

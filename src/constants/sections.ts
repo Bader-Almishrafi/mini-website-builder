@@ -29,3 +29,11 @@ export const sectionTypes: SectionType[] = [
   "cta",
   "footer",
 ];
+
+export const sectionLabels: Record<SectionType, string> = {
+  header: "Header",
+  hero: "Hero",
+  features: "Features",
+  cta: "Call to Action",
+  footer: "Footer",
+};
