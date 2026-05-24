@@ -14,6 +14,8 @@ type BuilderStore = {
   deleteSection: (id: string) => void;
 
   selectSection: (id: string | null) => void;
+
+  updateSection: (id: string, props: Partial<BuilderSection["props"]>) => void;
 };
 
 export const useBuilderStore = create<BuilderStore>((set) => ({
@@ -47,5 +49,12 @@ export const useBuilderStore = create<BuilderStore>((set) => ({
   selectSection: (id) =>
     set(() => ({
       selectedSectionId: id,
+    })),
+
+  updateSection: (id, props) =>
+    set((state) => ({
+      sections: state.sections.map((section) =>
+        section.id === id ? { ...section, props: { ...section.props, ...props } } : section
+      ),
     })),
 }));

@@ -2,7 +2,7 @@
 
 export function ImportExportBar() {
   return (
-    <header className="flex h-[72px] items-center justify-between border-b border-zinc-200 bg-white px-5">
+    <header className="flex h-18 items-center justify-between border-b border-zinc-200 bg-white px-5">
       <div>
         <h1 className="text-lg font-semibold">Mini Website Builder</h1>
         <p className="text-sm text-zinc-500">Build and preview simple landing pages</p>
