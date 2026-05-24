@@ -9,6 +9,7 @@ export type SectionProps = {
   imageUrl?: string;
   logoUrl?: string;
   backgroundColor?: string;
+  textColor?: string;
   navItems?: string[];
   featureItems?: string[];
   footerText?: string;

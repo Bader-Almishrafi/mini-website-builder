@@ -1,7 +1,9 @@
 "use client";
 
+import { ArrowDown, ArrowUp, Copy, Trash2 } from "lucide-react";
+
 import { useBuilderStore } from "@/store/builder-store";
-import {
+import type {
   SectionAlignment,
   SectionProps,
   SectionType,
@@ -57,6 +59,18 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "list",
       placeholder: "Navigation item",
     },
+    {
+      name: "backgroundColor",
+      label: "Background Color",
+      type: "color",
+      placeholder: "",
+    },
+    {
+      name: "textColor",
+      label: "Text Color",
+      type: "color",
+      placeholder: "",
+    },
   ],
   hero: [
     { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
@@ -84,6 +98,12 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "color",
       placeholder: "",
     },
+    {
+      name: "textColor",
+      label: "Text Color",
+      type: "color",
+      placeholder: "",
+    },
     { name: "textAlign", label: "Text Align", type: "alignment" },
     { name: "buttonAlign", label: "Button Align", type: "alignment" },
   ],
@@ -101,10 +121,28 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "list",
       placeholder: "Feature item",
     },
+    {
+      name: "backgroundColor",
+      label: "Background Color",
+      type: "color",
+      placeholder: "",
+    },
+    {
+      name: "textColor",
+      label: "Text Color",
+      type: "color",
+      placeholder: "",
+    },
     { name: "textAlign", label: "Text Align", type: "alignment" },
   ],
   cta: [
     { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
+    {
+      name: "description",
+      label: "Description",
+      type: "textarea",
+      placeholder: "Enter description",
+    },
     {
       name: "buttonText",
       label: "Button Text",
@@ -114,6 +152,12 @@ const sectionFields: Record<SectionType, SectionField[]> = {
     {
       name: "backgroundColor",
       label: "Background Color",
+      type: "color",
+      placeholder: "",
+    },
+    {
+      name: "textColor",
+      label: "Text Color",
       type: "color",
       placeholder: "",
     },
@@ -128,43 +172,55 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "text",
       placeholder: "Enter footer text",
     },
+    {
+      name: "backgroundColor",
+      label: "Background Color",
+      type: "color",
+      placeholder: "",
+    },
+    {
+      name: "textColor",
+      label: "Text Color",
+      type: "color",
+      placeholder: "",
+    },
     { name: "textAlign", label: "Text Align", type: "alignment" },
   ],
 };
 
 export function SectionEditor() {
   const sections = useBuilderStore((state) => state.sections);
-
   const selectedSectionId = useBuilderStore((state) => state.selectedSectionId);
-
   const updateSection = useBuilderStore((state) => state.updateSection);
   const deleteSection = useBuilderStore((state) => state.deleteSection);
+  const duplicateSection = useBuilderStore((state) => state.duplicateSection);
+  const moveSection = useBuilderStore((state) => state.moveSection);
 
-  const selectedSection = sections.find(
+  const selectedIndex = sections.findIndex(
     (section) => section.id === selectedSectionId,
   );
+  const selectedSection =
+    selectedIndex >= 0 ? sections[selectedIndex] : undefined;
 
   if (!selectedSection) {
     return (
       <aside className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-zinc-500">
-              Customize
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-zinc-950">
-              Section Settings
-            </h2>
-          </div>
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
+            Customize
+          </p>
+          <h2 className="mt-2 text-xl font-semibold text-zinc-950">
+            Section Settings
+          </h2>
         </div>
 
-        <div className="mt-8 rounded-[28px] border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 text-center text-sm text-zinc-500">
+        <div className="mt-8 rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 text-center text-sm text-zinc-500">
           <p className="text-base font-semibold text-zinc-900">
             No section selected
           </p>
-          <p className="mt-3 max-w-sm mx-auto">
-            Click a section in the preview to open its settings panel and
-            customize the page.
+          <p className="mx-auto mt-3 max-w-sm leading-6">
+            Select a section in the preview to edit its content, styles, and
+            position.
           </p>
         </div>
       </aside>
@@ -179,15 +235,46 @@ export function SectionEditor() {
 
   return (
     <aside className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-zinc-500">
-            Customize
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold text-zinc-950 capitalize">
-            {selectedSection.type} section
-          </h2>
-        </div>
+      <div>
+        <p className="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
+          Customize
+        </p>
+        <h2 className="mt-2 text-xl font-semibold text-zinc-950 capitalize">
+          {selectedSection.type} section
+        </h2>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={() => moveSection(selectedSection.id, "up")}
+          disabled={selectedIndex === 0}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40">
+          <ArrowUp size={16} />
+          Move up
+        </button>
+        <button
+          type="button"
+          onClick={() => moveSection(selectedSection.id, "down")}
+          disabled={selectedIndex === sections.length - 1}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40">
+          <ArrowDown size={16} />
+          Move down
+        </button>
+        <button
+          type="button"
+          onClick={() => duplicateSection(selectedSection.id)}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950">
+          <Copy size={16} />
+          Duplicate
+        </button>
+        <button
+          type="button"
+          onClick={() => deleteSection(selectedSection.id)}
+          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100">
+          <Trash2 size={16} />
+          Delete
+        </button>
       </div>
 
       <div className="mt-8 space-y-5">
@@ -232,7 +319,9 @@ export function SectionEditor() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => updateProps({ [field.name]: [...items, ""] })}
+                  onClick={() =>
+                    updateProps({ [field.name]: [...items, "New item"] })
+                  }
                   className="mt-3 inline-flex items-center rounded-2xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-200">
                   Add item
                 </button>
@@ -285,7 +374,7 @@ export function SectionEditor() {
                   onChange={(event) =>
                     updateProps({ [field.name]: event.target.value })
                   }
-                  className="min-h-30 w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white"
+                  className="min-h-28 w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white"
                   placeholder={field.placeholder}
                 />
               </div>
@@ -303,21 +392,14 @@ export function SectionEditor() {
                 onChange={(event) =>
                   updateProps({ [field.name]: event.target.value })
                 }
-                className="w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white"
+                className={`w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white ${
+                  field.type === "color" ? "h-12 p-1" : ""
+                }`}
                 placeholder={field.placeholder}
               />
             </div>
           );
         })}
-      </div>
-
-      <div className="mt-8 border-t border-zinc-200 pt-6">
-        <button
-          type="button"
-          onClick={() => deleteSection(selectedSection.id)}
-          className="inline-flex w-full items-center justify-center rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-200">
-          Delete Section
-        </button>
       </div>
     </aside>
   );

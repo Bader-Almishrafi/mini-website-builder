@@ -1,19 +1,23 @@
-"user client";
-
-import { SectionLibrary } from "./SectionLibrary";
+import { BuilderPersistence } from "./BuilderPersistence";
+import { ImportExportBar } from "./ImportExportBar";
 import { PreviewCanvas } from "./PreviewCanvas";
 import { SectionEditor } from "./SectionEditor";
-import { ImportExportBar } from "./ImportExportBar";
+import { SectionLibrary } from "./SectionLibrary";
 
 export function BuilderShell() {
   return (
     <main className="min-h-screen bg-[#f7f4ee] text-zinc-950">
+      <BuilderPersistence />
       <ImportExportBar />
 
-      <div className="grid min-h-[calc(100vh-72px)] grid-cols-1 gap-4 p-4 lg:grid-cols-[280px_1fr_320px]">
-        <SectionLibrary />
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 p-4 lg:grid-cols-[260px_minmax(0,1fr)_340px] lg:items-start">
+        <div className="lg:sticky lg:top-24">
+          <SectionLibrary />
+        </div>
         <PreviewCanvas />
-        <SectionEditor />
+        <div className="lg:sticky lg:top-24">
+          <SectionEditor />
+        </div>
       </div>
     </main>
   );

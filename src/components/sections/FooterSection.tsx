@@ -1,21 +1,27 @@
-import { SectionProps } from "@/types/builder";
+import { memo } from "react";
 
-export function FooterSection({
+import type { SectionProps } from "@/types/builder";
+
+const textAlignClasses = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+};
+
+export const FooterSection = memo(function FooterSection({
   title = "© 2026 My Website",
   footerText,
+  backgroundColor = "#ffffff",
+  textColor = "#71717a",
   textAlign = "center",
 }: SectionProps) {
   const content = footerText || title;
+
   return (
     <footer
-      className={`bg-white px-8 py-8 text-sm text-zinc-500 ${
-        textAlign === "left"
-          ? "text-left"
-          : textAlign === "right"
-            ? "text-right"
-            : "text-center"
-      }`}>
+      className={`px-6 py-8 text-sm sm:px-8 ${textAlignClasses[textAlign]}`}
+      style={{ backgroundColor, color: textColor }}>
       {content}
     </footer>
   );
-}
+});

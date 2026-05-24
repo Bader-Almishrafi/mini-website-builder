@@ -1,9 +1,11 @@
-import { SectionType, SectionProps } from "@/types/builder";
+import type { SectionProps, SectionType } from "@/types/builder";
 
 export const defaultSectionContent: Record<SectionType, SectionProps> = {
   header: {
     title: "My Website",
     logoUrl: "",
+    backgroundColor: "#ffffff",
+    textColor: "#18181b",
     navItems: ["Services", "About", "Contact"],
   },
   hero: {
@@ -12,6 +14,7 @@ export const defaultSectionContent: Record<SectionType, SectionProps> = {
     buttonText: "Get Started",
     imageUrl: "",
     backgroundColor: "#f7f4ee",
+    textColor: "#18181b",
     textAlign: "center",
     buttonAlign: "center",
   },
@@ -19,18 +22,24 @@ export const defaultSectionContent: Record<SectionType, SectionProps> = {
     title: "Our Features",
     description: "Fast, simple, and modern.",
     featureItems: ["Bookings", "Payments", "Customers"],
+    backgroundColor: "#ffffff",
+    textColor: "#18181b",
     textAlign: "center",
   },
   cta: {
     title: "Ready to Start?",
+    description: "Launch your next page in minutes.",
     buttonText: "Contact Us",
     backgroundColor: "#111827",
+    textColor: "#ffffff",
     textAlign: "center",
     buttonAlign: "center",
   },
   footer: {
-    title: "© 2026 My Website",
-    footerText: "© 2026 My Website",
+    title: "(c) 2026 My Website",
+    footerText: "(c) 2026 My Website",
+    backgroundColor: "#ffffff",
+    textColor: "#71717a",
     textAlign: "center",
   },
 };
