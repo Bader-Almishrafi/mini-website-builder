@@ -2,6 +2,10 @@
 
 import { ArrowDown, ArrowUp, Copy, Trash2 } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
 import { useBuilderStore } from "@/store/builder-store";
 import type {
   SectionAlignment,
@@ -214,15 +218,11 @@ export function SectionEditor() {
           </h2>
         </div>
 
-        <div className="mt-8 rounded-2xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-8 text-center text-sm text-zinc-500">
-          <p className="text-base font-semibold text-zinc-900">
-            No section selected
-          </p>
-          <p className="mx-auto mt-3 max-w-sm leading-6">
-            Select a section in the preview to edit its content, styles, and
-            position.
-          </p>
-        </div>
+        <EmptyState
+          className="mt-8"
+          title="No section selected"
+          description="Select a section in the preview to edit its content, styles, and position."
+        />
       </aside>
     );
   }
@@ -245,36 +245,31 @@ export function SectionEditor() {
       </div>
 
       <div className="mt-6 grid grid-cols-2 gap-2">
-        <button
-          type="button"
+        <Button
           onClick={() => moveSection(selectedSection.id, "up")}
           disabled={selectedIndex === 0}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40">
+          size="sm">
           <ArrowUp size={16} />
           Move up
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={() => moveSection(selectedSection.id, "down")}
           disabled={selectedIndex === sections.length - 1}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40">
+          size="sm">
           <ArrowDown size={16} />
           Move down
-        </button>
-        <button
-          type="button"
-          onClick={() => duplicateSection(selectedSection.id)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950">
+        </Button>
+        <Button onClick={() => duplicateSection(selectedSection.id)} size="sm">
           <Copy size={16} />
           Duplicate
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
           onClick={() => deleteSection(selectedSection.id)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100">
+          size="sm"
+          variant="danger">
           <Trash2 size={16} />
           Delete
-        </button>
+        </Button>
       </div>
 
       <div className="mt-8 space-y-5">
@@ -291,19 +286,17 @@ export function SectionEditor() {
                 <div className="space-y-2">
                   {items.map((item, index) => (
                     <div key={`${field.name}-${index}`} className="flex gap-2">
-                      <input
-                        type="text"
+                      <Input
                         value={item}
                         onChange={(event) => {
                           const nextItems = [...items];
                           nextItems[index] = event.target.value;
                           updateProps({ [field.name]: nextItems });
                         }}
-                        className="min-w-0 flex-1 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white"
+                        className="min-w-0 flex-1 rounded-2xl"
                         placeholder={field.placeholder}
                       />
-                      <button
-                        type="button"
+                      <Button
                         onClick={() =>
                           updateProps({
                             [field.name]: items.filter(
@@ -311,20 +304,21 @@ export function SectionEditor() {
                             ),
                           })
                         }
-                        className="shrink-0 rounded-2xl border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100">
+                        className="shrink-0 hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                        size="sm">
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
+                <Button
                   onClick={() =>
                     updateProps({ [field.name]: [...items, "New item"] })
                   }
-                  className="mt-3 inline-flex items-center rounded-2xl border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-200">
+                  className="mt-3"
+                  size="sm">
                   Add item
-                </button>
+                </Button>
               </div>
             );
           }
@@ -339,17 +333,14 @@ export function SectionEditor() {
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {alignmentOptions.map((option) => (
-                    <button
+                    <Button
                       key={option}
-                      type="button"
                       onClick={() => updateProps({ [field.name]: option })}
-                      className={`rounded-2xl border px-3 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-zinc-200 ${
-                        value === option
-                          ? "border-zinc-950 bg-zinc-950 text-white"
-                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-900 hover:text-zinc-950"
-                      }`}>
+                      className="font-semibold"
+                      size="sm"
+                      variant={value === option ? "primary" : "secondary"}>
                       {alignmentLabels[option]}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -369,12 +360,11 @@ export function SectionEditor() {
                 <label className="mb-2 block text-sm font-medium text-zinc-700">
                   {field.label}
                 </label>
-                <textarea
+                <Textarea
                   value={displayValue}
                   onChange={(event) =>
                     updateProps({ [field.name]: event.target.value })
                   }
-                  className="min-h-28 w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white"
                   placeholder={field.placeholder}
                 />
               </div>
@@ -386,15 +376,12 @@ export function SectionEditor() {
               <label className="mb-2 block text-sm font-medium text-zinc-700">
                 {field.label}
               </label>
-              <input
+              <Input
                 type={field.type}
                 value={inputValue}
                 onChange={(event) =>
                   updateProps({ [field.name]: event.target.value })
                 }
-                className={`w-full rounded-3xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-900 outline-none transition duration-150 focus:border-zinc-900 focus:bg-white ${
-                  field.type === "color" ? "h-12 p-1" : ""
-                }`}
                 placeholder={field.placeholder}
               />
             </div>

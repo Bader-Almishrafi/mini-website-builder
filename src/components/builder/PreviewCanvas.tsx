@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 
+import { EmptyState } from "@/components/ui/EmptyState";
 import { sectionComponents } from "@/lib/section-registry";
 import { useBuilderStore } from "@/store/builder-store";
 import type { BuilderSection } from "@/types/builder";
@@ -64,15 +65,11 @@ export function PreviewCanvas() {
       <div className="min-h-[620px] overflow-hidden rounded-2xl border border-zinc-200 bg-[#fbfaf7]">
         {sections.length === 0 ? (
           <div className="flex min-h-[620px] items-center justify-center p-8 text-center">
-            <div>
-              <h3 className="text-2xl font-semibold text-zinc-950">
-                Start building your page
-              </h3>
-              <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-500">
-                Choose a section from the left sidebar. New sections appear
-                here, and clicking any preview block opens its settings.
-              </p>
-            </div>
+            <EmptyState
+              className="max-w-xl border-zinc-200 bg-white"
+              title="Start building your page"
+              description="Choose a section from the left sidebar. New sections appear here, and clicking any preview block opens its settings."
+            />
           </div>
         ) : (
           sections.map((section) => (

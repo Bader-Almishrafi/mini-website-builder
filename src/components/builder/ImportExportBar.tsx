@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { Download, RotateCcw, Upload } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
 import {
   clearSavedSections,
   exportSectionsAsJson,
@@ -98,27 +99,20 @@ export function ImportExportBar() {
               className="hidden"
               onChange={handleImport}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-zinc-900 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-200">
+            <Button onClick={() => fileInputRef.current?.click()}>
               <Upload size={16} />
               Import
-            </button>
-            <button
-              type="button"
-              onClick={handleExport}
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300">
+            </Button>
+            <Button onClick={handleExport} variant="primary">
               <Download size={16} />
               Export
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={handleReset}
-              className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100">
+              className="hover:border-red-200 hover:bg-red-50 hover:text-red-700">
               <RotateCcw size={16} />
               Reset
-            </button>
+            </Button>
           </div>
         </div>
       </div>

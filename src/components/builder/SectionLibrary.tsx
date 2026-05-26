@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 
+import { Button } from "@/components/ui/Button";
 import { sectionLabels, sectionTypes } from "@/constants/sections";
 import { useBuilderStore } from "@/store/builder-store";
 
@@ -22,18 +23,18 @@ export function SectionLibrary() {
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
         {sectionTypes.map((type) => (
-          <button
+          <Button
             key={type}
-            type="button"
             onClick={() => addSection(type)}
-            className="group flex w-full items-center justify-between rounded-2xl border border-zinc-200 bg-[#fbfaf7] px-4 py-3 text-left transition duration-200 hover:-translate-y-0.5 hover:border-zinc-900 hover:bg-white hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-200">
+            className="group w-full justify-between rounded-2xl bg-[#fbfaf7] px-4 py-3 text-left duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+            size="sm">
             <span className="font-medium text-zinc-900">
               {sectionLabels[type]}
             </span>
             <span className="rounded-full bg-white p-1.5 text-zinc-500 transition group-hover:bg-zinc-950 group-hover:text-white">
               <Plus size={16} />
             </span>
-          </button>
+          </Button>
         ))}
       </div>
     </aside>

@@ -17,15 +17,18 @@ export const HeaderSection = memo(function HeaderSection({
     <header
       className="flex flex-wrap items-center justify-between gap-4 px-6 py-5 sm:px-8"
       style={{ backgroundColor, color: textColor }}>
-      {logoSrc ? (
-        <img
-          src={logoSrc}
-          alt={title || "Logo"}
-          className="h-10 max-w-[180px] object-contain"
-        />
-      ) : (
-        <div className="text-lg font-semibold text-current">{title}</div>
-      )}
+      <div className="flex min-w-0 items-center gap-3">
+        {logoSrc && (
+          <img
+            src={logoSrc}
+            alt={title || "Logo"}
+            className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-black/10"
+          />
+        )}
+        <div className="min-w-0 truncate text-lg font-semibold text-current">
+          {title}
+        </div>
+      </div>
 
       {visibleNavItems.length > 0 && (
         <nav className="hidden flex-wrap items-center gap-6 text-sm text-current opacity-75 md:flex">
