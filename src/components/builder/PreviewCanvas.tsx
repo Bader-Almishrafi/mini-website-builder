@@ -1,11 +1,26 @@
 "use client";
 
 import { memo } from "react";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import type { DragEndEvent } from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { sectionComponents } from "@/lib/section-registry";
 import { useBuilderStore } from "@/store/builder-store";
 import type { BuilderSection } from "@/types/builder";
+import { SortableSection } from "./SortableSection";
 
 type PreviewSectionProps = {
   section: BuilderSection;
@@ -21,23 +36,12 @@ const PreviewSection = memo(function PreviewSection({
   const SectionComponent = sectionComponents[section.type];
 
   return (
-    <div
-      onClick={(event) => {
-        const target = event.target;
-
-        if (target instanceof Element && target.closest("a")) {
-          event.preventDefault();
-        }
-
-        onSelect(section.id);
-      }}
-      className={`block w-full cursor-pointer text-left outline-none transition duration-200 hover:scale-[1.002] ${
-        isSelected
-          ? "relative z-10 ring-2 ring-inset ring-zinc-950"
-          : "hover:ring-1 hover:ring-inset hover:ring-zinc-300"
-      }`}>
+    <SortableSection
+      id={section.id}
+      isSelected={isSelected}
+      onSelect={() => onSelect(section.id)}>
       <SectionComponent {...section.props} />
-    </div>
+    </SortableSection>
   );
 });
 
@@ -45,6 +49,27 @@ export function PreviewCanvas() {
   const sections = useBuilderStore((state) => state.sections);
   const selectedSectionId = useBuilderStore((state) => state.selectedSectionId);
   const selectSection = useBuilderStore((state) => state.selectSection);
+  const reorderSections = useBuilderStore((state) => state.reorderSections);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over) {
+      return;
+    }
+
+    reorderSections(String(active.id), String(over.id));
+  };
 
   return (
     <section className="min-w-0 rounded-3xl border border-zinc-200 bg-white p-3 shadow-sm sm:p-4">
@@ -72,14 +97,23 @@ export function PreviewCanvas() {
             />
           </div>
         ) : (
-          sections.map((section) => (
-            <PreviewSection
-              key={section.id}
-              section={section}
-              isSelected={selectedSectionId === section.id}
-              onSelect={selectSection}
-            />
-          ))
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}>
+            <SortableContext
+              items={sections.map((section) => section.id)}
+              strategy={verticalListSortingStrategy}>
+              {sections.map((section) => (
+                <PreviewSection
+                  key={section.id}
+                  section={section}
+                  isSelected={selectedSectionId === section.id}
+                  onSelect={selectSection}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     </section>

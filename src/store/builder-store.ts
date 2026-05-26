@@ -13,6 +13,7 @@ type BuilderStore = {
   deleteSection: (id: string) => void;
   duplicateSection: (id: string) => void;
   moveSection: (id: string, direction: MoveDirection) => void;
+  reorderSections: (activeId: string, overId: string) => void;
   replaceSections: (sections: BuilderSection[]) => void;
   resetBuilder: () => void;
   selectSection: (id: string | null) => void;
@@ -35,6 +36,13 @@ function mergeWithDefaultProps(section: BuilderSection): BuilderSection {
       ...section.props,
     }),
   };
+}
+
+function reorderItems<T>(items: T[], fromIndex: number, toIndex: number) {
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(fromIndex, 1);
+  nextItems.splice(toIndex, 0, movedItem);
+  return nextItems;
 }
 
 export const useBuilderStore = create<BuilderStore>((set) => ({
@@ -103,6 +111,29 @@ export const useBuilderStore = create<BuilderStore>((set) => ({
       return {
         sections: nextSections,
         selectedSectionId: id,
+      };
+    }),
+
+  reorderSections: (activeId, overId) =>
+    set((state) => {
+      if (activeId === overId) {
+        return state;
+      }
+
+      const activeIndex = state.sections.findIndex(
+        (section) => section.id === activeId,
+      );
+      const overIndex = state.sections.findIndex(
+        (section) => section.id === overId,
+      );
+
+      if (activeIndex === -1 || overIndex === -1) {
+        return state;
+      }
+
+      return {
+        sections: reorderItems(state.sections, activeIndex, overIndex),
+        selectedSectionId: state.selectedSectionId,
       };
     }),
 
