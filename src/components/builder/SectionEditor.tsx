@@ -10,6 +10,7 @@ import { createSectionId } from "@/lib/json-utils";
 import { useBuilderStore } from "@/store/builder-store";
 import type {
   ButtonPlacement,
+  FeatureItem,
   SectionAlignment,
   SectionButton,
   SectionProps,
@@ -34,10 +35,16 @@ type TextField = {
 };
 
 type ListField = {
-  name: "navItems" | "featureItems";
+  name: "navItems";
   label: string;
   type: "list";
   placeholder: string;
+};
+
+type FeatureItemsField = {
+  name: "featureItems";
+  label: string;
+  type: "features";
 };
 
 type AlignmentField = {
@@ -61,6 +68,7 @@ type ButtonsField = {
 type SectionField =
   | TextField
   | ListField
+  | FeatureItemsField
   | AlignmentField
   | PlacementField
   | ButtonsField;
@@ -149,8 +157,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
     {
       name: "featureItems",
       label: "Feature Items",
-      type: "list",
-      placeholder: "Feature item",
+      type: "features",
     },
     {
       name: "backgroundColor",
@@ -235,6 +242,14 @@ function createEditorButton(
   };
 }
 
+function createFeatureItem(): FeatureItem {
+  return {
+    id: createSectionId(),
+    title: "New Feature",
+    description: "Describe this feature.",
+  };
+}
+
 export function SectionEditor() {
   const sections = useBuilderStore((state) => state.sections);
   const selectedSectionId = useBuilderStore((state) => state.selectedSectionId);
@@ -295,6 +310,24 @@ export function SectionEditor() {
           },
         ]
       : [];
+  };
+
+  const getEditableFeatureItems = () => {
+    const items = selectedSection.props.featureItems || [];
+
+    return items.reduce<FeatureItem[]>((nextItems, item, index) => {
+      if (typeof item === "string") {
+        nextItems.push({
+          id: `legacy-feature-${index + 1}`,
+          title: item,
+          description: "Describe this feature.",
+        });
+        return nextItems;
+      }
+
+      nextItems.push(item);
+      return nextItems;
+    }, []);
   };
 
   return (
@@ -382,6 +415,98 @@ export function SectionEditor() {
                   className="mt-3"
                   size="sm">
                   Add item
+                </Button>
+              </div>
+            );
+          }
+
+          if (field.type === "features") {
+            const items = getEditableFeatureItems();
+
+            const updateFeature = (
+              featureId: string,
+              featureProps: Partial<FeatureItem>,
+            ) => {
+              updateProps({
+                featureItems: items.map((item) =>
+                  item.id === featureId
+                    ? { ...item, ...featureProps, id: item.id }
+                    : item,
+                ),
+              });
+            };
+
+            const removeFeature = (featureId: string) => {
+              updateProps({
+                featureItems: items.filter((item) => item.id !== featureId),
+              });
+            };
+
+            const addFeature = () => {
+              updateProps({
+                featureItems: [...items, createFeatureItem()],
+              });
+            };
+
+            return (
+              <div key={field.name}>
+                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                  {field.label}
+                </label>
+                <div className="space-y-3">
+                  {items.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="rounded-3xl border border-zinc-200 bg-zinc-50 p-3 transition hover:border-zinc-300">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <p className="min-w-0 text-sm font-semibold text-zinc-900">
+                          Feature {index + 1}
+                        </p>
+                        <Button
+                          onClick={() => removeFeature(item.id)}
+                          className="hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                          size="sm">
+                          Remove
+                        </Button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="mb-2 block text-xs font-medium text-zinc-500">
+                            Title
+                          </label>
+                          <Input
+                            value={item.title}
+                            onChange={(event) =>
+                              updateFeature(item.id, {
+                                title: event.target.value,
+                              })
+                            }
+                            placeholder="Feature title"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-xs font-medium text-zinc-500">
+                            Description
+                          </label>
+                          <Textarea
+                            className="min-h-24"
+                            value={item.description}
+                            onChange={(event) =>
+                              updateFeature(item.id, {
+                                description: event.target.value,
+                              })
+                            }
+                            placeholder="Feature description"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button onClick={addFeature} className="mt-3" size="sm">
+                  Add feature
                 </Button>
               </div>
             );

@@ -22,7 +22,23 @@ export const defaultSectionContent: Record<SectionType, SectionProps> = {
   features: {
     title: "Our Features",
     description: "Fast, simple, and modern.",
-    featureItems: ["Bookings", "Payments", "Customers"],
+    featureItems: [
+      {
+        id: "feature-bookings",
+        title: "Bookings",
+        description: "Manage bookings with a simple, focused workflow.",
+      },
+      {
+        id: "feature-payments",
+        title: "Payments",
+        description: "Keep payment details organized and easy to review.",
+      },
+      {
+        id: "feature-customers",
+        title: "Customers",
+        description: "Track customer information from one clean place.",
+      },
+    ],
     backgroundColor: "#ffffff",
     textColor: "#18181b",
     textAlign: "center",

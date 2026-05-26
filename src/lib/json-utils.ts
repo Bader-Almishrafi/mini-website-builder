@@ -2,6 +2,7 @@ import { sectionTypes } from "@/constants/sections";
 import type {
   ButtonPlacement,
   BuilderSection,
+  FeatureItem,
   SectionAlignment,
   SectionButton,
   SectionProps,
@@ -25,7 +26,7 @@ type StringPropName = Extract<
   | "footerText"
 >;
 
-type ListPropName = Extract<keyof SectionProps, "navItems" | "featureItems">;
+type ListPropName = Extract<keyof SectionProps, "navItems">;
 
 const stringPropNames: StringPropName[] = [
   "title",
@@ -37,7 +38,7 @@ const stringPropNames: StringPropName[] = [
   "textColor",
   "footerText",
 ];
-const listPropNames: ListPropName[] = ["navItems", "featureItems"];
+const listPropNames: ListPropName[] = ["navItems"];
 
 type ParseResult =
   | { ok: true; sections: BuilderSection[] }
@@ -106,6 +107,53 @@ function normalizeButtons(value: unknown): SectionButton[] | undefined {
   return buttons;
 }
 
+function normalizeFeatureItems(value: unknown): FeatureItem[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const ids = new Set<string>();
+
+  return value.reduce<FeatureItem[]>((nextItems, item, index) => {
+    if (typeof item === "string") {
+      const title = item.trim();
+
+      if (!title) {
+        return nextItems;
+      }
+
+      const id = `feature-${index + 1}`;
+      ids.add(id);
+      nextItems.push({
+        id,
+        title,
+        description: "Describe this feature.",
+      });
+      return nextItems;
+    }
+
+    if (!isRecord(item) || typeof item.title !== "string") {
+      return nextItems;
+    }
+
+    const rawId =
+      typeof item.id === "string" && item.id.trim()
+        ? item.id
+        : `feature-${index + 1}`;
+    const id = ids.has(rawId) ? `${rawId}-${index + 1}` : rawId;
+    ids.add(id);
+
+    nextItems.push({
+      id,
+      title: item.title,
+      description:
+        typeof item.description === "string" ? item.description : "",
+    });
+
+    return nextItems;
+  }, []);
+}
+
 export function createSectionId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -121,7 +169,9 @@ export function cloneSectionProps(props: SectionProps): SectionProps {
       ? props.buttons.map((button) => ({ ...button }))
       : undefined,
     navItems: props.navItems ? [...props.navItems] : undefined,
-    featureItems: props.featureItems ? [...props.featureItems] : undefined,
+    featureItems: props.featureItems
+      ? props.featureItems.map((item) => ({ ...item }))
+      : undefined,
   };
 }
 
@@ -150,6 +200,7 @@ function normalizeProps(value: unknown): SectionProps {
   });
 
   props.buttons = normalizeButtons(value.buttons);
+  props.featureItems = normalizeFeatureItems(value.featureItems);
 
   if (isAlignment(value.textAlign)) {
     props.textAlign = value.textAlign;

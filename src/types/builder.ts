@@ -12,6 +12,12 @@ export type SectionButton = {
   textColor?: string;
 };
 
+export type FeatureItem = {
+  id: string;
+  title: string;
+  description: string;
+};
+
 export type SectionProps = {
   title?: string;
   description?: string;
@@ -22,7 +28,7 @@ export type SectionProps = {
   backgroundColor?: string;
   textColor?: string;
   navItems?: string[];
-  featureItems?: string[];
+  featureItems?: FeatureItem[];
   footerText?: string;
   textAlign?: SectionAlignment;
   buttonAlign?: SectionAlignment;
