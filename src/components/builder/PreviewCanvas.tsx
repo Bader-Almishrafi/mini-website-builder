@@ -22,16 +22,16 @@ const PreviewSection = memo(function PreviewSection({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onSelect(section.id)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
+      onClick={(event) => {
+        const target = event.target;
+
+        if (target instanceof Element && target.closest("a")) {
           event.preventDefault();
-          onSelect(section.id);
         }
+
+        onSelect(section.id);
       }}
-      className={`block w-full text-left outline-none transition duration-200 hover:scale-[1.002] ${
+      className={`block w-full cursor-pointer text-left outline-none transition duration-200 hover:scale-[1.002] ${
         isSelected
           ? "relative z-10 ring-2 ring-inset ring-zinc-950"
           : "hover:ring-1 hover:ring-inset hover:ring-zinc-300"

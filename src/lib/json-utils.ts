@@ -1,7 +1,9 @@
 import { sectionTypes } from "@/constants/sections";
 import type {
+  ButtonPlacement,
   BuilderSection,
   SectionAlignment,
+  SectionButton,
   SectionProps,
   SectionType,
 } from "@/types/builder";
@@ -10,6 +12,7 @@ export const DESIGN_STORAGE_KEY = "mini-website-builder-design";
 export const EXPORT_FILE_NAME = "mini-website-builder-design.json";
 
 const alignmentValues: SectionAlignment[] = ["left", "center", "right"];
+const placementValues: ButtonPlacement[] = ["top", "bottom"];
 type StringPropName = Extract<
   keyof SectionProps,
   | "title"
@@ -55,6 +58,54 @@ function isAlignment(value: unknown): value is SectionAlignment {
   );
 }
 
+function isButtonPlacement(value: unknown): value is ButtonPlacement {
+  return (
+    typeof value === "string" &&
+    placementValues.includes(value as ButtonPlacement)
+  );
+}
+
+function normalizeButtons(value: unknown): SectionButton[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  const ids = new Set<string>();
+  const buttons = value.reduce<SectionButton[]>((nextButtons, item, index) => {
+    if (!isRecord(item) || typeof item.label !== "string") {
+      return nextButtons;
+    }
+
+    const rawId =
+      typeof item.id === "string" && item.id.trim()
+        ? item.id
+        : `button-${index + 1}`;
+    const id = ids.has(rawId) ? `${rawId}-${index + 1}` : rawId;
+    ids.add(id);
+    const button: SectionButton = {
+      id,
+      label: item.label,
+    };
+
+    if (typeof item.href === "string") {
+      button.href = item.href;
+    }
+
+    if (typeof item.backgroundColor === "string") {
+      button.backgroundColor = item.backgroundColor;
+    }
+
+    if (typeof item.textColor === "string") {
+      button.textColor = item.textColor;
+    }
+
+    nextButtons.push(button);
+    return nextButtons;
+  }, []);
+
+  return buttons;
+}
+
 export function createSectionId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -66,6 +117,9 @@ export function createSectionId() {
 export function cloneSectionProps(props: SectionProps): SectionProps {
   return {
     ...props,
+    buttons: props.buttons
+      ? props.buttons.map((button) => ({ ...button }))
+      : undefined,
     navItems: props.navItems ? [...props.navItems] : undefined,
     featureItems: props.featureItems ? [...props.featureItems] : undefined,
   };
@@ -95,12 +149,18 @@ function normalizeProps(value: unknown): SectionProps {
     }
   });
 
+  props.buttons = normalizeButtons(value.buttons);
+
   if (isAlignment(value.textAlign)) {
     props.textAlign = value.textAlign;
   }
 
   if (isAlignment(value.buttonAlign)) {
     props.buttonAlign = value.buttonAlign;
+  }
+
+  if (isButtonPlacement(value.buttonPlacement)) {
+    props.buttonPlacement = value.buttonPlacement;
   }
 
   return props;

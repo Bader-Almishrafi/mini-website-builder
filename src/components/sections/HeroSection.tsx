@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { memo } from "react";
 
-import type { SectionProps } from "@/types/builder";
+import type { SectionButton, SectionProps } from "@/types/builder";
 
 const textAlignClasses = {
   left: "text-left items-start",
@@ -19,13 +19,27 @@ export const HeroSection = memo(function HeroSection({
   title = "Grow Your Business",
   description = "Build beautiful pages easily.",
   buttonText = "Get Started",
+  buttons = [],
   imageUrl,
   backgroundColor = "#f7f4ee",
   textColor = "#18181b",
   textAlign = "center",
   buttonAlign = "center",
+  buttonPlacement = "bottom",
 }: SectionProps) {
   const imageSrc = imageUrl?.trim();
+  const visibleButtons = getVisibleButtons(buttons, buttonText);
+  const buttonGroup =
+    visibleButtons.length > 0 ? (
+      <div
+        className={`flex w-full flex-wrap gap-3 ${buttonAlignClasses[buttonAlign]} ${
+          buttonPlacement === "top" ? "mb-8" : "mt-8"
+        }`}>
+        {visibleButtons.map((button) => (
+          <PreviewButton key={button.id} button={button} />
+        ))}
+      </div>
+    ) : null;
 
   return (
     <section
@@ -36,18 +50,12 @@ export const HeroSection = memo(function HeroSection({
           imageSrc ? "lg:grid-cols-[1fr_0.85fr] lg:items-center" : ""
         }`}>
         <div className={`flex flex-col ${textAlignClasses[textAlign]}`}>
-          <p className="mb-5 w-fit rounded-full bg-white/80 px-4 py-2 text-sm font-medium text-zinc-600 shadow-sm">
-            No-code landing page
-          </p>
+          {buttonPlacement === "top" && buttonGroup}
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">
             {title}
           </h1>
           <p className="mt-5 max-w-2xl text-lg opacity-70">{description}</p>
-          <div className={`mt-8 flex w-full ${buttonAlignClasses[buttonAlign]}`}>
-            <button className="rounded-full bg-zinc-950 px-6 py-3 text-sm font-medium text-white transition hover:bg-zinc-800">
-              {buttonText}
-            </button>
-          </div>
+          {buttonPlacement === "bottom" && buttonGroup}
         </div>
 
         {imageSrc && (
@@ -61,3 +69,47 @@ export const HeroSection = memo(function HeroSection({
     </section>
   );
 });
+
+function getVisibleButtons(buttons: SectionButton[], buttonText?: string) {
+  const configuredButtons = buttons.filter((button) => button.label.trim());
+
+  if (configuredButtons.length > 0) {
+    return configuredButtons;
+  }
+
+  const legacyLabel = buttonText?.trim();
+  return legacyLabel
+    ? [
+        {
+          id: "legacy-button",
+          label: legacyLabel,
+          backgroundColor: "#18181b",
+          textColor: "#ffffff",
+        },
+      ]
+    : [];
+}
+
+function PreviewButton({ button }: { button: SectionButton }) {
+  const href = button.href?.trim();
+  const style = {
+    backgroundColor: button.backgroundColor || "#18181b",
+    color: button.textColor || "#ffffff",
+  };
+  const className =
+    "rounded-full px-6 py-3 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-lg";
+
+  if (href) {
+    return (
+      <a className={className} href={href} style={style}>
+        {button.label}
+      </a>
+    );
+  }
+
+  return (
+    <button className={className} style={style} type="button">
+      {button.label}
+    </button>
+  );
+}

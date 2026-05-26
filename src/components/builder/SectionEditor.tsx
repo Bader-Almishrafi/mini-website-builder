@@ -6,16 +6,24 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { createSectionId } from "@/lib/json-utils";
 import { useBuilderStore } from "@/store/builder-store";
 import type {
+  ButtonPlacement,
   SectionAlignment,
+  SectionButton,
   SectionProps,
   SectionType,
 } from "@/types/builder";
 
 type TextFieldName = Exclude<
   keyof SectionProps,
-  "navItems" | "featureItems" | "textAlign" | "buttonAlign"
+  | "navItems"
+  | "featureItems"
+  | "buttons"
+  | "textAlign"
+  | "buttonAlign"
+  | "buttonPlacement"
 >;
 
 type TextField = {
@@ -38,14 +46,37 @@ type AlignmentField = {
   type: "alignment";
 };
 
-type SectionField = TextField | ListField | AlignmentField;
+type PlacementField = {
+  name: "buttonPlacement";
+  label: string;
+  type: "placement";
+};
+
+type ButtonsField = {
+  name: "buttons";
+  label: string;
+  type: "buttons";
+};
+
+type SectionField =
+  | TextField
+  | ListField
+  | AlignmentField
+  | PlacementField
+  | ButtonsField;
 
 const alignmentOptions: SectionAlignment[] = ["left", "center", "right"];
+const placementOptions: ButtonPlacement[] = ["top", "bottom"];
 
 const alignmentLabels: Record<SectionAlignment, string> = {
   left: "Left",
   center: "Center",
   right: "Right",
+};
+
+const placementLabels: Record<ButtonPlacement, string> = {
+  top: "Top",
+  bottom: "Bottom",
 };
 
 const sectionFields: Record<SectionType, SectionField[]> = {
@@ -84,12 +115,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "textarea",
       placeholder: "Enter description",
     },
-    {
-      name: "buttonText",
-      label: "Button Text",
-      type: "text",
-      placeholder: "Enter button label",
-    },
+    { name: "buttons", label: "Buttons", type: "buttons" },
     {
       name: "imageUrl",
       label: "Image URL",
@@ -110,6 +136,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
     },
     { name: "textAlign", label: "Text Align", type: "alignment" },
     { name: "buttonAlign", label: "Button Align", type: "alignment" },
+    { name: "buttonPlacement", label: "Button Placement", type: "placement" },
   ],
   features: [
     { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
@@ -147,12 +174,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "textarea",
       placeholder: "Enter description",
     },
-    {
-      name: "buttonText",
-      label: "Button Text",
-      type: "text",
-      placeholder: "Enter button label",
-    },
+    { name: "buttons", label: "Buttons", type: "buttons" },
     {
       name: "backgroundColor",
       label: "Background Color",
@@ -167,6 +189,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
     },
     { name: "textAlign", label: "Text Align", type: "alignment" },
     { name: "buttonAlign", label: "Button Align", type: "alignment" },
+    { name: "buttonPlacement", label: "Button Placement", type: "placement" },
   ],
   footer: [
     { name: "title", label: "Title", type: "text", placeholder: "Enter title" },
@@ -191,6 +214,26 @@ const sectionFields: Record<SectionType, SectionField[]> = {
     { name: "textAlign", label: "Text Align", type: "alignment" },
   ],
 };
+
+function getDefaultButtonColors(type: SectionType) {
+  return type === "cta"
+    ? { backgroundColor: "#ffffff", textColor: "#18181b" }
+    : { backgroundColor: "#18181b", textColor: "#ffffff" };
+}
+
+function createEditorButton(
+  type: SectionType,
+  label = "New Button",
+): SectionButton {
+  const colors = getDefaultButtonColors(type);
+
+  return {
+    id: createSectionId(),
+    label,
+    href: "",
+    ...colors,
+  };
+}
 
 export function SectionEditor() {
   const sections = useBuilderStore((state) => state.sections);
@@ -231,6 +274,27 @@ export function SectionEditor() {
 
   const updateProps = (props: Partial<SectionProps>) => {
     updateSection(selectedSection.id, props);
+  };
+
+  const getEditableButtons = () => {
+    const buttons = selectedSection.props.buttons || [];
+
+    if (buttons.length > 0) {
+      return buttons;
+    }
+
+    const legacyLabel = selectedSection.props.buttonText?.trim();
+    const colors = getDefaultButtonColors(selectedSection.type);
+    return legacyLabel
+      ? [
+          {
+            id: "legacy-button",
+            label: legacyLabel,
+            href: "",
+            ...colors,
+          },
+        ]
+      : [];
   };
 
   return (
@@ -343,6 +407,155 @@ export function SectionEditor() {
                     </Button>
                   ))}
                 </div>
+              </div>
+            );
+          }
+
+          if (field.type === "placement") {
+            const value = selectedSection.props.buttonPlacement || "bottom";
+
+            return (
+              <div key={field.name}>
+                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                  {field.label}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {placementOptions.map((option) => (
+                    <Button
+                      key={option}
+                      onClick={() => updateProps({ buttonPlacement: option })}
+                      className="font-semibold"
+                      size="sm"
+                      variant={value === option ? "primary" : "secondary"}>
+                      {placementLabels[option]}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            );
+          }
+
+          if (field.type === "buttons") {
+            const buttons = getEditableButtons();
+
+            const updateButton = (
+              buttonId: string,
+              buttonProps: Partial<SectionButton>,
+            ) => {
+              updateProps({
+                buttonText: "",
+                buttons: buttons.map((button) =>
+                  button.id === buttonId
+                    ? { ...button, ...buttonProps, id: button.id }
+                    : button,
+                ),
+              });
+            };
+
+            const removeButton = (buttonId: string) => {
+              updateProps({
+                buttonText: "",
+                buttons: buttons.filter((button) => button.id !== buttonId),
+              });
+            };
+
+            const addButton = () => {
+              updateProps({
+                buttonText: "",
+                buttons: [...buttons, createEditorButton(selectedSection.type)],
+              });
+            };
+
+            return (
+              <div key={field.name}>
+                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                  {field.label}
+                </label>
+                <div className="space-y-3">
+                  {buttons.map((button, index) => (
+                    <div
+                      key={button.id}
+                      className="rounded-3xl border border-zinc-200 bg-zinc-50 p-3 transition hover:border-zinc-300">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <p className="min-w-0 text-sm font-semibold text-zinc-900">
+                          Button {index + 1}
+                        </p>
+                        <Button
+                          onClick={() => removeButton(button.id)}
+                          className="hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+                          size="sm">
+                          Remove
+                        </Button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="mb-2 block text-xs font-medium text-zinc-500">
+                            Label
+                          </label>
+                          <Input
+                            value={button.label}
+                            onChange={(event) =>
+                              updateButton(button.id, {
+                                label: event.target.value,
+                              })
+                            }
+                            placeholder="Button label"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-xs font-medium text-zinc-500">
+                            Link
+                          </label>
+                          <Input
+                            value={button.href || ""}
+                            onChange={(event) =>
+                              updateButton(button.id, {
+                                href: event.target.value,
+                              })
+                            }
+                            placeholder="https://example.com"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                          <div>
+                            <label className="mb-2 block text-xs font-medium text-zinc-500">
+                              Background
+                            </label>
+                            <Input
+                              type="color"
+                              value={button.backgroundColor || "#18181b"}
+                              onChange={(event) =>
+                                updateButton(button.id, {
+                                  backgroundColor: event.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-xs font-medium text-zinc-500">
+                              Text
+                            </label>
+                            <Input
+                              type="color"
+                              value={button.textColor || "#ffffff"}
+                              onChange={(event) =>
+                                updateButton(button.id, {
+                                  textColor: event.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button onClick={addButton} className="mt-3" size="sm">
+                  Add button
+                </Button>
               </div>
             );
           }

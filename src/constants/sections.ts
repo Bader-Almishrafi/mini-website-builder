@@ -17,6 +17,7 @@ export const defaultSectionContent: Record<SectionType, SectionProps> = {
     textColor: "#18181b",
     textAlign: "center",
     buttonAlign: "center",
+    buttonPlacement: "bottom",
   },
   features: {
     title: "Our Features",
@@ -34,6 +35,7 @@ export const defaultSectionContent: Record<SectionType, SectionProps> = {
     textColor: "#ffffff",
     textAlign: "center",
     buttonAlign: "center",
+    buttonPlacement: "bottom",
   },
   footer: {
     title: "(c) 2026 My Website",

@@ -2,10 +2,21 @@ export type SectionType = "header" | "hero" | "features" | "cta" | "footer";
 
 export type SectionAlignment = "left" | "center" | "right";
 
+export type ButtonPlacement = "top" | "bottom";
+
+export type SectionButton = {
+  id: string;
+  label: string;
+  href?: string;
+  backgroundColor?: string;
+  textColor?: string;
+};
+
 export type SectionProps = {
   title?: string;
   description?: string;
   buttonText?: string;
+  buttons?: SectionButton[];
   imageUrl?: string;
   logoUrl?: string;
   backgroundColor?: string;
@@ -15,6 +26,7 @@ export type SectionProps = {
   footerText?: string;
   textAlign?: SectionAlignment;
   buttonAlign?: SectionAlignment;
+  buttonPlacement?: ButtonPlacement;
 };
 
 export type BuilderSection = {
