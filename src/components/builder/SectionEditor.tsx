@@ -102,6 +102,7 @@ const sectionFields: Record<SectionType, SectionField[]> = {
       type: "list",
       placeholder: "Navigation item",
     },
+    { name: "buttons", label: "Buttons", type: "buttons" },
     {
       name: "backgroundColor",
       label: "Background Color",
