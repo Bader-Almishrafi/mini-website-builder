@@ -2,6 +2,10 @@
 
 A clean, lightweight website section builder built with Next.js, TypeScript, Tailwind CSS, and Zustand. The app lets users compose a simple landing page from reusable sections, edit content and styling in real time, preview the result, and save or move designs through JSON import/export.
 
+## Live Demo
+
+https://bader-mini-website-builder.vercel.app
+
 ## Features
 
 - Add, edit, duplicate, move, and delete page sections.
